@@ -1,5 +1,6 @@
 ﻿using Raylib_cs;
 using System;
+using System.Text;
 
 namespace kum
 {
@@ -12,7 +13,7 @@ namespace kum
 			height = 600;
 			resize_factor = 2;
 			brush_size = 2;
-			string brush_type = "sand";
+            TileType brush_type = TileType.Sand;
 
 			Raylib.InitWindow(width, height, "kum");
 			Raylib.SetTargetFPS(60);
@@ -34,27 +35,30 @@ namespace kum
 
 				else if (Raylib.IsKeyPressed(KeyboardKey.KEY_SPACE))
 				{
-					switch (brush_type)
-					{
-						case "sand":
-							brush_type = "water";
-							break;
-						case "water":
-							brush_type = "wood";
-							break;
-						case "wood":
-							brush_type = "fire";
-							break;
-						case "fire":
-							brush_type = "air";
-							break;
-						case "air":
-							brush_type = "sand";
-							break;
-					}
-				}
+                    switch (brush_type)
+                    {
+                        case TileType.Sand:
+                            brush_type = TileType.Water;
+                            break;
+                        case TileType.Water:
+                            brush_type = TileType.Wood;
+                            break;
+                        case TileType.Wood:
+                            brush_type = TileType.Fire;
+                            break;
+                        case TileType.Fire:
+                            brush_type = TileType.Air;
+                            break;
+                        case TileType.Air:
+                            brush_type = TileType.Smoke;
+                            break;
+                        case TileType.Smoke:
+							brush_type = TileType.Sand;
+                            break;
+                    }
+                }
 
-				if (Raylib.GetMouseWheelMove() != 0)
+                if (Raylib.GetMouseWheelMove() != 0)
 				{
 					brush_size += (int)Raylib.GetMouseWheelMove();
 				}
@@ -68,14 +72,22 @@ namespace kum
 				Raylib.ClearBackground(Color.BLACK);
 
 				world.Draw();
-				Raylib.DrawText(brush_type, 4, 4, 24, Color.WHITE);
+				byte[] bytes = Encoding.ASCII.GetBytes(brush_type.ToString());
+				unsafe
+				{
+					fixed(byte* ptr = bytes)
+					{
+						sbyte* sp = (sbyte*)ptr;
+                        Raylib.DrawText(sp, 4, 4, 24, Color.WHITE);
+                    }
+                }
 				Raylib.DrawText("<space> to switch", 4, 32, 16, Color.WHITE);
 				Raylib.DrawRectangleLines(mouse_x * resize_factor, mouse_y * resize_factor, brush_size * resize_factor, brush_size * resize_factor, Color.WHITE);
 
 				Raylib.EndDrawing();
-			}
+            }
 
-			Raylib.CloseWindow();
-		}
-	}
+            Raylib.CloseWindow();
+        }
+    }
 }
